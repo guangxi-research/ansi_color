@@ -40,8 +40,6 @@ This is a header-only library. Just drop `ansi_color.hpp` into your project:
 
 ```cpp
 #include "ansi_color.hpp"
-
-#include "ansi_color.hpp"
 #include <format>
 
 inline void example() {
