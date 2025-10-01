@@ -34,6 +34,12 @@ Designed for developers who demand precision, compile-time safety, and zero runt
 
 ---
 
+## 🔧 Terminal Output Preview
+
+Here's what the color output looks like:
+
+![ANSI Color Demo](screenshot.png)
+
 ## 📦 Installation
 
 This is a header-only library. Just drop `ansi_color.hpp` into your project:
