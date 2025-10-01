@@ -40,7 +40,7 @@ Here's what the color output looks like:
 
 ![ANSI Color Demo](screenshot.png)
 
-## 📦 Installation
+## 📦 Example
 
 This is a header-only library. Just drop `ansi_color.hpp` into your project:
 
