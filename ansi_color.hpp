@@ -4,9 +4,9 @@
  * Copyright (c) 2025 TAO 12804985@qq.com
  *
  * @file    ansi_color.hpp
- * @brief   Ìá¹©ÔÚ C++ ±ê×¼Á÷ (std::cout / std::cerr) ÖĞÊ¹ÓÃ ANSI ×ªÒåĞòÁĞ
- *          ¿ØÖÆÃüÁîĞĞÎÄ±¾ÑÕÉ«µÄ¹¤¾ßº¯ÊıÓë·â×°
- * @version 1.0.0
+ * @brief   æä¾›åœ¨ C++ æ ‡å‡†æµ (std::cout / std::cerr) ä¸­ä½¿ç”¨ ANSI è½¬ä¹‰åºåˆ—
+ *          æ§åˆ¶å‘½ä»¤è¡Œæ–‡æœ¬é¢œè‰²çš„å·¥å…·å‡½æ•°ä¸å°è£…
+ * @version 1.2.0
  * @date    2025-10-02
  * 
  * -----------------------------------------------------------------------------
@@ -30,63 +30,58 @@
  * -----------------------------------------------------------------------------
  */
 
- /**
-  * @example example_color.cpp
-  * @brief   Ê¹ÓÃ ansi_color ÔÚ C++ ±ê×¼Á÷ÖĞÊä³ö²ÊÉ«ÎÄ±¾
-  *
-  * using namespace ansi_color;
-  * enable_windows_ansi();
-  * 
-  * using ansi_reset = ansi_color::reset;
-  * 
-  * std::cout << fg_red << bg_yellow << "Red on Yellow" << ansi_reset << std::endl;
-  * std::cout << fg(255,0,0) << bg(255,255,0) << "Red on Yellow" << ansi_reset << std::endl;
-  * std::cout << fg"#FF0000" << bg"#FFFF00" << "Red on Yellow" << ansi_reset << std::endl;
-  *
-  * auto red_yellow = color8(fg(255,0,0), bg(255,255,0));
-  * auto red_yellow_hex = color8(fg"#FF0000", bg"#FFFF00");
-  *
-  * std::cout << red_yellow << "Red on Yellow" << ansi_reset << std::endl;
-  */
+/*
+ +---------+---------------------------+-------------------------------+-----------------------------------+
+ | Family  | Introducer                | Terminator                    | Common Usage                      |
+ +---------+---------------------------+-------------------------------+-----------------------------------+
+ | ESC     | ESC + single character    | Single character              | Cursor up (ESC A), down (ESC B),  |
+ |         |                           |                               | index, next line, etc.            |
+ | CSI     | ESC [                     | Letter (m, J, K, H, A, B, Câ€¦) | Colors/styles (SGR), clear screen,|
+ |         |                           |                               | cursor movement                   |
+ | OSC     | ESC ]                     | BEL (\x07) or ESC \           | Set window title, clipboard,      |
+ |         |                           |                               | hyperlinks                        |
+ | DCS     | ESC P                     | ESC \                         | Device control, graphics (sixel,  |
+ |         |                           |                               | kitty protocol, etc.)             |
+ | ST      | ESC \                     | (used as terminator)          | Terminates OSC/DCS strings        |
+ +---------+---------------------------+-------------------------------+-----------------------------------+
+ 
+ +----------------------+-----------------------------+-----------------------------+
+ | SGR Code             | Foreground (text color)     | Background (fill color)     |
+ +----------------------+-----------------------------+-----------------------------+
+ | 30â€“37                | 30 Black        31 Red      | 40 Black        41 Red      |
+ |                      | 32 Green        33 Yellow   | 42 Green        43 Yellow   |
+ |                      | 34 Blue         35 Magenta  | 44 Blue         45 Magenta  |
+ |                      | 36 Cyan         37 White    | 46 Cyan         47 White    |
+ +----------------------+-----------------------------+-----------------------------+
+ | 90â€“97 (bright)       | 90 BrightBlack  91 BrightRed|100 BrightBlack 101 BrightRed|
+ |                      | 92 BrightGreen  93 BrightYel|102 BrightGreen 103 BrightYel|
+ |                      | 94 BrightBlue   95 BrightMag|104 BrightBlue  105 BrightMag|
+ |                      | 96 BrightCyan   97 BrightWhi|106 BrightCyan  107 BrightWhi|
+ +----------------------+-----------------------------+-----------------------------+
+ | 38;5;{idx}           | 8-bit (256-color) FG        |                             |
+ | 48;5;{idx}           |                             | 8-bit (256-color) BG        |
+ |                      | {idx} in [0..255]           | {idx} in [0..255]           |
+ +----------------------+-----------------------------+-----------------------------+
+ | 38;2;R;G;B           | 24-bit truecolor FG         |                             |
+ | 48;2;R;G;B           |                             | 24-bit truecolor BG         |
+ |                      | R,G,B in [0..255]           | R,G,B in [0..255]           |
+ +----------------------+-----------------------------+-----------------------------+
+ | 0                    | Reset all attributes        |                             |
+ | 39                   | Reset foreground to default |                             |
+ | 49                   |                             | Reset background to default |
+ +----------------------+-----------------------------+-----------------------------+
+ | 1 Bold/Intensity     | 2 Faint     3 Italic        | 4 Underline                 |
+ | 5 Blink              | 7 Reverse   8 Hidden        | 9 Strikethrough             |
+ +----------------------+-----------------------------+-----------------------------+
+ | 22 Cancel Bold/Faint | 23 Cancel Italic            | 24 Cancel Underline         |
+ | 25 Cancel Blink      | 27 Cancel Reverse           | 28 Cancel Hidden            |
+ | 29 Cancel Strike     |                             |                             |
+ +----------------------+-----------------------------+-----------------------------+
+ */
 
 #pragma once
 
-/*
-+----------------------+-----------------------------+-----------------------------+
-| SGR Code             | Foreground (text color)     | Background (fill color)     |
-+----------------------+-----------------------------+-----------------------------+
-| 30¨C37                | 30 Black        31 Red      | 40 Black        41 Red      |
-|                      | 32 Green        33 Yellow   | 42 Green        43 Yellow   |
-|                      | 34 Blue         35 Magenta  | 44 Blue         45 Magenta  |
-|                      | 36 Cyan         37 White    | 46 Cyan         47 White    |
-+----------------------+-----------------------------+-----------------------------+
-| 90¨C97 (bright)       | 90 BrightBlack  91 BrightRed|100 BrightBlack 101 BrightRed|
-|                      | 92 BrightGreen  93 BrightYel|102 BrightGreen 103 BrightYel|
-|                      | 94 BrightBlue   95 BrightMag|104 BrightBlue  105 BrightMag|
-|                      | 96 BrightCyan   97 BrightWhi|106 BrightCyan  107 BrightWhi|
-+----------------------+-----------------------------+-----------------------------+
-| 38;5;{idx}           | 8-bit (256-color) FG        |                             |
-| 48;5;{idx}           |                             | 8-bit (256-color) BG        |
-|                      | {idx} in [0..255]           | {idx} in [0..255]           |
-+----------------------+-----------------------------+-----------------------------+
-| 38;2;R;G;B           | 24-bit truecolor FG         |                             |
-| 48;2;R;G;B           |                             | 24-bit truecolor BG         |
-|                      | R,G,B in [0..255]           | R,G,B in [0..255]           |
-+----------------------+-----------------------------+-----------------------------+
-| 0                    | Reset all attributes        |                             |
-| 39                   | Reset foreground to default |                             |
-| 49                   |                             | Reset background to default |
-+----------------------+-----------------------------+-----------------------------+
-| 1 Bold/Intensity     | 2 Faint     3 Italic        | 4 Underline                 |
-| 5 Blink              | 7 Reverse   8 Hidden        | 9 Strikethrough             |
-+----------------------+-----------------------------+-----------------------------+
-| 22 Cancel Bold/Faint | 23 Cancel Italic            | 24 Cancel Underline         |
-| 25 Cancel Blink      | 27 Cancel Reverse           | 28 Cancel Hidden            |
-| 29 Cancel Strike     |                             |                             |
-+----------------------+-----------------------------+-----------------------------+
- */
-
-#define ANSI_COLOR_VERSION "1.0.0"
+#define ANSI_COLOR_VERSION "1.0.1"
 
 #if defined(_MSC_VER)  // MSVC
 #if !defined(_MSVC_LANG) || _MSVC_LANG < 202002L
@@ -99,8 +94,10 @@
 #endif
 
 #include <cassert>
+#include <array>
 #include <sstream>
 #include <iostream>
+#include <format>
 
 #ifdef _WIN32
 #include <io.h>
@@ -108,15 +105,8 @@
 #define fileno _fileno
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
-namespace ansi_color {
-
-	inline bool force_output_ansi = false;
-
-#ifdef _WIN32
+namespace ansi_escape {
 	inline bool enable_windows_ansi() {
 		static bool enabled = []() {
 			HANDLE hOut = ::GetStdHandle(STD_OUTPUT_HANDLE);
@@ -132,202 +122,365 @@ namespace ansi_color {
 
 		return enabled;
 	}
+}
+
 #else
+
+#include <unistd.h>
+
+namespace ansi_escape {
 	inline bool enable_windows_ansi() {
-		// ·Ç Windows Æ½Ì¨Ä¬ÈÏÖ§³Ö ANSI
+		// é Windows å¹³å°é»˜è®¤æ”¯æŒ ANSI
 		return true;
 	}
+}
+
 #endif
 
+namespace ansi_escape {
+
+	template<int N>
+	struct AnsiLiteral {
+		std::array<char, N> value;
+
+		constexpr AnsiLiteral(const std::array<char, N>& str) {
+			for (int i = 0; i < N; ++i) value[i] = str[i];
+		}
+
+		constexpr std::string_view to_view() const {
+			/*static_assert*/assert(value[0] == '\x1b');
+			return { value.data() };
+		}
+
+		constexpr const char* c_str() const noexcept { return value.data(); }
+		constexpr size_t size() const noexcept { return N; }
+		constexpr size_t length() const noexcept { return N - 1; } // exclude '\0'
+	};
+
+	namespace tty {
+
+		enum class policy { force, never, auto_ };
+
+		struct state {
+			policy stdout_policy = policy::auto_;
+			policy stderr_policy = policy::auto_;
+			policy stream_policy = policy::auto_;
+
+			bool stdout_is_tty = false;
+			bool stderr_is_tty = false;
+
+			void refresh() {
+				stdout_is_tty = (isatty(fileno(stdout)) != 0);
+				stderr_is_tty = (isatty(fileno(stderr)) != 0);
+			}
+
+			state() { refresh(); }
+		};
+
+		inline thread_local state g_tty_state;
+
+		auto emit_policy = [](policy p, bool is_tty) {
+			return p == policy::force || (p == policy::auto_ && is_tty);
+			};
+
+		inline bool emit_ansi() {
+			return emit_policy(g_tty_state.stream_policy, g_tty_state.stdout_is_tty/* && g_tty_state.stderr_is_tty*/);
+		}
+
+		inline bool emit_ansi(std::ostream& os) {
+			if (&os == &std::cout)
+				return emit_policy(g_tty_state.stdout_policy, g_tty_state.stdout_is_tty);
+			else if (&os == &std::cerr)
+				return emit_policy(g_tty_state.stderr_policy, g_tty_state.stderr_is_tty);
+			else
+				return emit_policy(g_tty_state.stream_policy, false);
+		}
+	}
+
 	namespace detail {
-		// ÅĞ¶Ï¸ø¶¨Á÷ÊÇ·ñÎª tty£¨½ö¶Ô std::cout / std::cerr£©
-		inline bool stream_is_tty(std::ostream& os) noexcept {
-			// »º´æ stdout/stderr ÊÇ·ñÎª tty£¨Ö»ÔÚ³õÊ¼»¯Ê±¼ÆËãÒ»´Î£©
-			static bool stdout_is_tty = (isatty(fileno(stdout)) != 0);
-			static bool stderr_is_tty = (isatty(fileno(stderr)) != 0);
 
-			if (&os == &std::cout) return stdout_is_tty;
-			if (&os == &std::cerr) return stderr_is_tty;
+		[[nodiscard]] constexpr int int_to_chars(int value, char* out) noexcept {
+			auto digits = [](int v) {
+				int d = 1;
+				while (v >= 10) { v /= 10; ++d; }
+				return d;
+			};
 
-			return false;
+			int len = digits(value);
+			for (int i = len - 1; i >= 0; --i) {
+				out[i] = char('0' + (value % 10));
+				value /= 10;
+			}
+			return len;
 		}
 
-		// Select Graphic Rendition
-		namespace sgr {
-			struct code {
-				const int value;
-				constexpr explicit code(int v) noexcept : value(v) {}
+		template<std::size_t N = 32, typename Write>
+		[[nodiscard]] constexpr auto make_escape(char Introducer, char Finisher, Write&& write) {
+			std::array<char, N> buf{};
+			int pos = 0;
+			buf[pos++] = '\x1b';
+			buf[pos++] = Introducer;
+			write(buf, pos);
+			buf[pos++] = Finisher;
+			buf[pos] = '\0';
+			return buf;
+		}
+    } // namespace detail
+
+    inline void refresh_is_tty() { tty::g_tty_state.refresh(); }
+
+	// Control Sequence Introducer
+	namespace csi {
+        //template<char F>
+        //    requires (
+        //        F == 'm' || F == 'J' || F == 'K' || F == 'A' || 
+        //        F == 'B' || F == 'C' || F == 'D' || F == 'H' || F == 'f')
+		// evaluated at both compile-time and runtime
+		template <int N = 16>
+        [[nodiscard]] constexpr auto gen_ansi(int v, char F) noexcept {
+			// å…è®¸çš„ç»ˆæ­¢ç¬¦ï¼šSGR(m)ã€æ“¦å±/æ“¦è¡Œ(J/K)ã€å…‰æ ‡ç§»åŠ¨(A/B/C/D)ã€å®šä½(H/f)        
+			assert((
+				F == 'm' || F == 'J' || F == 'K' ||
+				F == 'A' || F == 'B' || F == 'C' ||
+				F == 'D' || F == 'H' || F == 'f') && "Invalid ANSI command");
+            return detail::make_escape<N>('[', F, [&](auto& buf, int& pos) {
+                pos += detail::int_to_chars(v, buf.data() + pos);
+			});
+        }
+
+        // Select Graphic Rendition
+        namespace sgr {
+
+			template <int N = 16>
+			struct Code : AnsiLiteral<N> {
+				consteval Code(int v) : AnsiLiteral<N>(gen_ansi(v, 'm')) { }
 			};
-			inline std::ostream& operator<<(std::ostream& os, code c) {
-				return (stream_is_tty(os) || force_output_ansi) ?
-					os << "\x1b[" << c.value << "m" : os;
+
+            enum class target : int { foreground = 38, background = 48 };
+
+			// 4bit color
+			template <target t>
+			class Color4 {
+				Color4() = delete;
+				enum { base_c = static_cast<int>(t) - 8, bright_c = base_c + 60 };
+
+			public:
+                // ç¼ºçœè‰²
+				inline static constexpr auto preset = Code(base_c + 9);
+				// 4ä½åŸºç¡€è‰²                                             // 4ä½äº®è‰²
+				inline static constexpr auto black   = Code(base_c + 0); inline static constexpr auto bright_black   = Code(bright_c + 0);
+				inline static constexpr auto red     = Code(base_c + 1); inline static constexpr auto bright_red     = Code(bright_c + 1);
+				inline static constexpr auto green   = Code(base_c + 2); inline static constexpr auto bright_green   = Code(bright_c + 2);
+				inline static constexpr auto yellow  = Code(base_c + 3); inline static constexpr auto bright_yellow  = Code(bright_c + 3);
+				inline static constexpr auto blue    = Code(base_c + 4); inline static constexpr auto bright_blue    = Code(bright_c + 4);
+				inline static constexpr auto magenta = Code(base_c + 5); inline static constexpr auto bright_magenta = Code(bright_c + 5);
+				inline static constexpr auto cyan    = Code(base_c + 6); inline static constexpr auto bright_cyan    = Code(bright_c + 6);
+				inline static constexpr auto white   = Code(base_c + 7); inline static constexpr auto bright_white   = Code(bright_c + 7);
+			};
+
+			// 8bit color
+			template <target t, int N = 16>
+			class Color8 : public AnsiLiteral<N> {
+				[[nodiscard]] constexpr static auto gen_ansi(uint8_t i) noexcept {
+					return AnsiLiteral<N>(detail::make_escape<N>('[', 'm', [&](auto& buf, int& pos) {
+						pos += detail::int_to_chars(static_cast<int>(t), buf.data() + pos); // 38 or 48
+						buf[pos++] = ';'; buf[pos++] = '5'; buf[pos++] = ';';
+						pos += detail::int_to_chars(i, buf.data() + pos); // 256 color
+						}));
+				}
+
+				static constexpr auto palette_lit256 = []<size_t... Is>(std::index_sequence<Is...>) {
+					return std::array{ gen_ansi(Is)... };
+				}(std::make_index_sequence<256>{}); // ç¼–è¯‘æœŸå…¨éƒ¨ç”Ÿæˆ
+
+			public:
+				constexpr Color8(uint8_t i) : AnsiLiteral<N>(palette_lit256[i]) {}
+
+				static constexpr Color8 at(uint8_t i) {
+					return Color8{ i };
+				}
+			};
+
+            // 24bit true color
+			template <target t, int N = 32>
+			class Color24 : public AnsiLiteral<N> {
+				[[nodiscard]] static constexpr auto gen_ansi(uint8_t red, uint8_t green, uint8_t blue) noexcept {
+					return AnsiLiteral<N>(detail::make_escape('[', 'm', [&](auto& buf, int& pos) {
+						pos += detail::int_to_chars(static_cast<int>(t), buf.data() + pos); // 38 or 48
+						buf[pos++] = ';'; buf[pos++] = '2'; buf[pos++] = ';';
+
+						pos += detail::int_to_chars(red, buf.data() + pos);
+						buf[pos++] = ';';
+						pos += detail::int_to_chars(green, buf.data() + pos);
+						buf[pos++] = ';';
+						pos += detail::int_to_chars(blue, buf.data() + pos);
+						}));
+				}
+
+			public:
+				constexpr Color24(uint8_t r, uint8_t g, uint8_t b) noexcept
+					: AnsiLiteral<N>(gen_ansi(r, g, b)) {
+				}
+
+				// compile-time ctor
+				template <size_t N> requires(N == 8 || N == 5)
+				consteval Color24(const char(&hex)[N]) // "#RRGGBB\0"=8 "#RGB\0"=5
+					: Color24(parse(hex, N - 1)) {
+				}
+
+				// runtime ctor
+				explicit Color24(std::string_view hex)
+					: Color24(parse(hex.data(), hex.size())) {
+				}
+
+				// evaluated at both compile-time and runtime
+				static constexpr Color24 parse(const char* str, size_t len) {
+					assert(str[0] == '#' && "Hex color must start with '#'");
+
+					auto hex_digit = [](char c) noexcept {
+						if ('0' <= c && c <= '9') return (c - '0');
+						if ('a' <= c && c <= 'f') return (10 + (c - 'a'));
+						if ('A' <= c && c <= 'F') return (10 + (c - 'A'));
+						return 0;
+						};
+
+					if (len == 7) { // "#RRGGBB"
+						return {
+							static_cast<uint8_t>(hex_digit(str[1]) * 16 + hex_digit(str[2])),
+							static_cast<uint8_t>(hex_digit(str[3]) * 16 + hex_digit(str[4])),
+							static_cast<uint8_t>(hex_digit(str[5]) * 16 + hex_digit(str[6]))
+						};
+					}
+					else if (len == 4) { // "#RGB"
+						return {
+							static_cast<uint8_t>(hex_digit(str[1]) * 17),
+							static_cast<uint8_t>(hex_digit(str[2]) * 17),
+							static_cast<uint8_t>(hex_digit(str[3]) * 17)
+						};
+					}
+					else {
+						assert(false && "Color hex must be #RGB or #RRGGBB");
+						return { 0, 0, 0 };
+					}
+				}
+			};
+
+            using foreground4 = Color4<target::foreground>;
+		    using background4 = Color4<target::background>;
+            using foreground8 = Color8<target::foreground>;
+            using background8 = Color8<target::background>;
+
+			using foreground24 = Color24<target::foreground>;
+			using background24 = Color24<target::background>;
+
+			consteval foreground24 operator""_fg(const char* str, size_t len) { return foreground24::parse(str, len); }
+			consteval background24 operator""_bg(const char* str, size_t len) { return background24::parse(str, len); }
+
+			namespace style {
+				inline constexpr sgr::Code bold     { 1 };
+				inline constexpr sgr::Code faint    { 2 };
+				inline constexpr sgr::Code italic   { 3 };
+				inline constexpr sgr::Code underline{ 4 };
+				inline constexpr sgr::Code blink    { 5 };
+				inline constexpr sgr::Code reverse  { 7 };
+				inline constexpr sgr::Code hidden   { 8 };
+				inline constexpr sgr::Code strike   { 9 };
 			}
 
-			enum class target : int {
-				foreground = 38,
-				background = 48
-			};
-		}
-		
-		// 4bit color
-		template <sgr::target t>
-		struct color4 {
-		private:
-			static_assert(static_cast<int>(t) == 38 || static_cast<int>(t) == 48, 
-				"target must be foreground[38] or background[48] (ANSI extended color codes)");
-			color4() = delete;
+			inline constexpr Code reset{ 0 };
+        }
 
-			template<int Base>
-			struct make_bit4 {
-				static constexpr auto get = [](int offset) constexpr {
-					return sgr::code{ Base + offset };
-				};
-			};
-			static constexpr auto bit4 = make_bit4<static_cast<int>(t) - 8>::get;
-			static constexpr auto bright_bit4 = make_bit4<static_cast<int>(t) - 8 + 60>::get;
+		inline constexpr AnsiLiteral<8> clear{ gen_ansi<8>(2, 'J') }; // "\x1b[2J"
+		// TODO  
+		// "\x1b[row;colH"
+		// "\x1bc" reset term
+	}
 
+	// Operating System Command
+	namespace osc {
+
+		template <int N = 128>
+		class Title : public AnsiLiteral<N> {
+			[[nodiscard]] constexpr static auto gen_ansi(std::string_view t) noexcept {
+				return AnsiLiteral<N>(detail::make_escape<N>(']', '\x07', [&](auto& buf, int& pos) {
+					buf[pos++] = '2'; buf[pos++] = ';';
+					for (size_t i = 0; i < t.size(); i++)
+						buf[pos++] = t[i];
+					}));
+			}
 		public:
-			// È±Ê¡É«
-			static constexpr auto preset  = bit4(9);
-			// 4Î»»ù´¡É«
-			static constexpr auto black   = bit4(0);
-			static constexpr auto red     = bit4(1);
-			static constexpr auto green   = bit4(2);
-			static constexpr auto yellow  = bit4(3);
-			static constexpr auto blue    = bit4(4);
-			static constexpr auto magenta = bit4(5);
-			static constexpr auto cyan    = bit4(6);
-			static constexpr auto white   = bit4(7);
-			// 4Î»ÁÁÉ«
-			static constexpr auto bright_black   = bright_bit4(0);
-			static constexpr auto bright_red     = bright_bit4(1);
-			static constexpr auto bright_green   = bright_bit4(2);
-			static constexpr auto bright_yellow  = bright_bit4(3);
-			static constexpr auto bright_blue    = bright_bit4(4);
-			static constexpr auto bright_magenta = bright_bit4(5);
-			static constexpr auto bright_cyan    = bright_bit4(6);
-			static constexpr auto bright_white   = bright_bit4(7);
-		};
-
-		// 8bit color
-		template <sgr::target t>
-		struct color8 {
-			const uint8_t index; // [0,255]
-			constexpr explicit color8(uint8_t i) noexcept : index(i) { }
-		};
-
-		template <sgr::target t>
-		inline std::ostream& operator<<(std::ostream& os, color8<t> c) {
-			return (detail::stream_is_tty(os) || force_output_ansi) 
-				? os 
-					<< "\x1b[" << static_cast<int>(t) << ";5;" 
-					<< static_cast<int>(c.index) << "m"
-				: os;
-		}
-
-		// 24bit true color
-		template <sgr::target t>
-		struct color24 {
-			uint8_t red, green, blue;
-
-			constexpr color24(uint8_t r, uint8_t g, uint8_t b) noexcept
-				: red{ r }, green{ g }, blue{ b } {
+			// compile-time ctor
+			template <size_t L> requires (L < N - 4)
+				explicit consteval Title(const char(&txt)[L])
+				: AnsiLiteral<N>(gen_ansi(txt)) {
 			}
-
-			consteval color24(const char(&hex)[8]) // "#RRGGBB\0"
-				: color24(parse(hex, 7)) {
-			}
-
-			consteval color24(const char(&hex)[5]) // "#RGB\0"
-				: color24(parse(hex, 4)) {
-			}
-
 			// runtime ctor
-			explicit color24(std::string_view hex)
-				: color24(parse(hex.data(), hex.size())) {
-			}
-
-			// evaluated at both compile-time and runtime
-			static constexpr color24 parse(const char* str, size_t len) {
-				assert(str[0] == '#' && "Hex color must start with '#'");
-				if (len == 7) { // "#RRGGBB"
-					return {
-						static_cast<uint8_t>(hex_digit(str[1]) * 16 + hex_digit(str[2])),
-						static_cast<uint8_t>(hex_digit(str[3]) * 16 + hex_digit(str[4])),
-						static_cast<uint8_t>(hex_digit(str[5]) * 16 + hex_digit(str[6]))
-					};
-				}
-				else if (len == 4) { // "#RGB"
-					return {
-						static_cast<uint8_t>(hex_digit(str[1]) * 17),
-						static_cast<uint8_t>(hex_digit(str[2]) * 17),
-						static_cast<uint8_t>(hex_digit(str[3]) * 17)
-					};
-				}
-				else {
-					assert(false && "Color hex must be #RGB or #RRGGBB");
-					return { 0, 0, 0 };
-				}
-			}
-
-		private:
-			static constexpr uint8_t hex_digit(char c) noexcept {
-				if ('0' <= c && c <= '9') return (c - '0');
-				if ('a' <= c && c <= 'f') return (10 + (c - 'a'));
-				if ('A' <= c && c <= 'F') return (10 + (c - 'A'));
-				return 0;
+			explicit Title(std::string_view txt)
+				: AnsiLiteral<N>(gen_ansi(txt)) {
 			}
 		};
 
-		template <sgr::target t>
-		inline std::ostream& operator<<(std::ostream& os, color24<t> c) {
-			return (detail::stream_is_tty(os) || force_output_ansi) 
-				? os 
-					<< "\x1b[" << static_cast<int>(t) << ";2;" 
-					<< static_cast<int>(c.red) << ";" 
-					<< static_cast<int>(c.green) << ";" 
-					<< static_cast<int>(c.blue) << "m"
-				: os;
+	}
+
+	template <typename AnsiObjectT>
+		requires requires(AnsiObjectT&& ao) {
+			{ ao.to_view() } -> std::same_as<std::string_view>;
+	}
+	inline std::ostream& operator<<(std::ostream& os, AnsiObjectT&& ao) {
+		return tty::emit_ansi(os) ? os << ao.to_view() : os;
+	}
+
+	template <class AnsiObjectT>
+	struct formatter {
+		char mode = 'a'; // f=force, n=never, a=auto_
+		constexpr auto parse(std::format_parse_context& ctx) {
+			auto it = ctx.begin(), end = ctx.end();
+			if (it != end && (*it == 'f' || *it == 'n' || *it == 'a')) mode = *it++;
+			return it;
 		}
+		auto format(const AnsiObjectT& ao, std::format_context& ctx) const {
+			auto out = ctx.out();
+			switch (mode) {
+			case 'n': // never
+				return out;
+			case 'f': // force
+				return std::format_to(out, "{}", ao.to_view());
+			case 'a': // auto (explicit or default)
+			default:
+				if (tty::emit_ansi())
+					return std::format_to(out, "{}", ao.to_view());
+				else
+					return out;
+			}
+		}
+	};
 
-	} // namespace detail
+}
 
-	using foreground4 = detail::color4<detail::sgr::target::foreground>; using fg4 = foreground4;
-	using background4 = detail::color4<detail::sgr::target::background>; using bg4 = background4;
-	using foreground8 = detail::color8<detail::sgr::target::foreground>; using fg8 = foreground8;
-	using background8 = detail::color8<detail::sgr::target::background>; using bg8 = background8;
+namespace std {
 
-	using foreground24 = detail::color24<detail::sgr::target::foreground>; using fg24 = foreground24;
-	using background24 = detail::color24<detail::sgr::target::background>; using bg24 = background24;
-
-	consteval fg24 operator""_fg(const char* str, size_t len) { return fg24::parse(str, len); }
-	consteval bg24 operator""_bg(const char* str, size_t len) { return bg24::parse(str, len); }
-
-	template <typename color>
-		requires (
-			std::is_same_v<detail::sgr::code, color> || 
-			std::is_same_v<bg8, color> || std::is_same_v<fg8, color> ||
-			std::is_same_v<bg24, color> || std::is_same_v<fg24, color>)
-	[[nodiscard]] std::string to_string(color c) {
-		auto s = force_output_ansi;
-		force_output_ansi = true;
-		std::ostringstream ss;
-		ss << c; 
-		force_output_ansi = s;
-		return ss.str();
+	template <typename AnsiObjectT>
+		requires requires(AnsiObjectT&& ao) {
+			{ ao.to_view() } -> std::same_as<std::string_view>;
 	}
+	struct std::formatter<AnsiObjectT> : ansi_escape::formatter<AnsiObjectT> { };
 
-	namespace style {
-		inline constexpr detail::sgr::code bold     { 1 };
-		inline constexpr detail::sgr::code faint    { 2 };
-		inline constexpr detail::sgr::code italic   { 3 };
-		inline constexpr detail::sgr::code underline{ 4 };
-		inline constexpr detail::sgr::code blink    { 5 };
-		inline constexpr detail::sgr::code reverse  { 7 };
-		inline constexpr detail::sgr::code hidden   { 8 };
-		inline constexpr detail::sgr::code strike   { 9 };
-	}
+}
 
-	// È«²¿ÖØÖÃ
-	inline constexpr detail::sgr::code reset{ 0 };
-} // namespace ansi_color
+
+// å…¼å®¹ ansi_color-1.0.0
+namespace ansi_color {
+
+    using namespace ansi_escape;
+    using namespace ansi_escape::csi;
+    using namespace ansi_escape::csi::sgr;
+
+    using fg4 = foreground4;
+    using bg4 = background4;
+    using fg8 = foreground8;
+    using bg8 = background8;
+
+	using fg24 = foreground24;
+	using bg24 = background24;
+
+}
