@@ -37,7 +37,6 @@ This is a header-only library. Just drop `ansi_color.hpp` into your project:
 
 ```cpp
 #include "ansi_color.hpp"
-#include <format>
 
 int main(int argc, char* argv[]) {
 	using namespace ansi_color;
