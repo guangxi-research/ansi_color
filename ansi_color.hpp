@@ -308,7 +308,6 @@ namespace ansi_escape {
 					return AnsiLiteral<N>(detail::make_escape('[', 'm', [&](auto& buf, int& pos) {
 						pos += detail::int_to_chars(static_cast<int>(t), buf.data() + pos); // 38 or 48
 						buf[pos++] = ';'; buf[pos++] = '2'; buf[pos++] = ';';
-
 						pos += detail::int_to_chars(red, buf.data() + pos);
 						buf[pos++] = ';';
 						pos += detail::int_to_chars(green, buf.data() + pos);
@@ -463,7 +462,7 @@ namespace std {
 		requires requires(AnsiObjectT&& ao) {
 			{ ao.to_view() } -> std::same_as<std::string_view>;
 	}
-	struct std::formatter<AnsiObjectT> : ansi_escape::formatter<AnsiObjectT> { };
+	struct formatter<AnsiObjectT> : ansi_escape::formatter<AnsiObjectT> { };
 
 }
 
@@ -484,4 +483,5 @@ namespace ansi_color {
 	using bg24 = background24;
 
 }
+
 
