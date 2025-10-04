@@ -7,7 +7,7 @@
  * @brief   提供在 C++ 标准流 (std::cout / std::cerr) 中使用 ANSI 转义序列
  *          控制命令行文本颜色的工具函数与封装
  * @version 1.2.0
- * @date    2025-10-02
+ * @date    2025-10-04
  * 
  * -----------------------------------------------------------------------------
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -484,3 +484,4 @@ namespace ansi_color {
 	using bg24 = background24;
 
 }
+
