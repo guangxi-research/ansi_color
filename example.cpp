@@ -1,7 +1,6 @@
 #include "ansi_color.hpp"
-#include <format>
 
-inline void example() {
+int main(int argc, char* argv[]) {
 	using namespace ansi_color;
 	enable_windows_ansi();
 
@@ -43,4 +42,7 @@ inline void example() {
 	
 	std::cout << style::underline << style::bold << "ANSI COLOR TEST DONE" << reset << std::endl;
 	std::cout << clear << std::endl;
+
+	return 0;
 }
+
