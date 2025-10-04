@@ -29,6 +29,7 @@ Whether you are building CLI tools, logging systems, or terminal UIs, **ANSI Col
 
 Here's what the color output looks like:
 
+![ANSI Color Demo](screensplash.png)
 ![ANSI Color Demo](screenshot.png)
 
 ## 📦 Example
