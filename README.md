@@ -1,36 +1,27 @@
-ANSI Color Output Toolkit is a lightweight C++ header-only library that provides intuitive and compile-time safe utilities for rendering colored text in terminal environments using ANSI escape sequences. It supports standard 8-color, extended 256-color, and true 24-bit RGB output, with clean abstractions for foreground/background control, stream integration, and cross-platform compatibility.
+# ANSI Color Output Toolkit
 
-Designed for developers who demand precision and minimalism, this library enables expressive color formatting in std::cout / std::cerr without runtime overhead. Features include:
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
+[![Header-only](https://img.shields.io/badge/library-header--only-lightgrey.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-Compile-time RGB parsing via user-defined literals ("#FF0000"_fg)
+**ANSI Color Output Toolkit** is a lightweight, header‑only C++20 library that provides intuitive and compile‑time safe utilities for rendering colored text in terminal environments using ANSI escape sequences. It supports **standard 8‑color**, **extended 256‑color**, and **true 24‑bit RGB** output, with clean abstractions for foreground/background control, stream integration, and cross‑platform compatibility.
 
-Optional global override for forced ANSI output (force_output_ansi)
+Designed for developers who demand **precision and minimalism**, the toolkit enables expressive color formatting in `std::cout` / `std::cerr` without runtime overhead. With its **compile‑time ANSI generation**, **user‑defined RGB literals** (e.g. `"#FF0000"_fg`), and seamless **`std::format` integration**, it delivers both performance and clarity.  
 
-Header-only, zero-dependency design
+Whether you are building CLI tools, logging systems, or terminal UIs, **ANSI Color Output Toolkit** gives you full control over how your text looks—while staying lightweight, future‑proof, and dependency‑free.
 
-Compatible with modern C++20 and above
-
-Whether you're building CLI tools, logging systems, or terminal UIs, ANSI Color Output Toolkit gives you full control over how your text looks—without sacrificing performance or clarity.
-
-
-# 🔥 ANSI Color Output Toolkit
-
-Minimalist C++ header-only library for terminal color control.  
-Supports 4-bit, 8-bit (256-color), and true 24-bit RGB output using ANSI escape sequences.  
-Designed for developers who demand precision, compile-time safety, and zero runtime overhead.
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-- ✅ 4-bit standard colors (`fg4::red`, `bg4::yellow`)
-- ✅ 8-bit extended palette (`fg8(196)`, `bg8(15)`)
-- ✅ 24-bit true color (`fg24("#FF0000")`, `bg24(255,255,0)`)
-- ✅ User-defined literals (`"#FF0000"_fg`, `"#FFFF00"_bg`)
-- ✅ Compile-time RGB parsing via `consteval`
-- ✅ Cross-platform ANSI support (Windows via `enable_windows_ansi()`)
-- ✅ Style modifiers (`style::bold`, `style::underline`)
-- ✅ Reset control (`reset`)
+- **Compile‑time ANSI generation** for maximum efficiency  
+- **User‑defined literals** for RGB colors (e.g. `"#FF0000"_fg`)  
+- **Full style support**: bold, italic, underline, blink, reverse, hidden, strike, reset  
+- **Cross‑platform compatibility**, with automatic Windows console enabling  
+- **TTY‑aware emission policies** (`force`, `never`, `auto`) for precise output control  
+- **`std::format` integration**, allowing ANSI objects to be formatted directly with mode specifiers  
+- **Header‑only, zero‑dependency design**, requiring only C++20 or later  
 
 ---
 
