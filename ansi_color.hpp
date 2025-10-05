@@ -179,7 +179,7 @@ namespace ansi_escape {
 
 		inline thread_local state g_tty_state;
 
-		auto emit_policy = [](policy p, bool is_tty) {
+		inline auto emit_policy = [](policy p, bool is_tty) {
 			return p == policy::force || (p == policy::auto_ && is_tty);
 			};
 
@@ -483,5 +483,6 @@ namespace ansi_color {
 	using bg24 = background24;
 
 }
+
 
 
