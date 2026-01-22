@@ -1,4 +1,6 @@
 # ANSI Color Output Toolkit
+<img width="300" height="300" alt="ansi_color" src="https://github.com/user-attachments/assets/09d42f33-3cd6-4068-9a4d-6894c88de081" />
+
 
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Header-only](https://img.shields.io/badge/library-header--only-lightgrey.svg)]()
